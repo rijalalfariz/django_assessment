@@ -170,8 +170,9 @@
 
   $(document).on('submit', '#filterForm', function(e) {
     e.preventDefault();
-    $(`tr`).not(`:has([data-supplierid="${$('#supplier').val()}"])`).hide();
-    $(`tr`).not(`:has([data-discontinued="${$('#is_discontinued').val()}"])`).hide();
+    $('tbody tr').hide();
+    $(`tr:has([data-supplierid*="${$('#supplier').val()}"])`).show();
+    {% comment %} $(`tr`).not(`:has([data-discontinued="${$('#is_discontinued').val()}"])`).hide(); {% endcomment %}
   });
 </script>
 {% endblock %}
