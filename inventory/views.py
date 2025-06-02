@@ -91,7 +91,8 @@ class OrderAdmin:
 
     def list(request):
         context = {
-            'suppliers': Supplier.objects.all(),
+            'orders': Order.objects.all(),
+            'products': Product.objects.all(),
         }
         return render(request, 'SupplierAdmin/list.html', context)
     

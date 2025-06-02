@@ -40,10 +40,10 @@
                           <input type="hidden" name="id" value="{{ order.id }}">
                           <td>{{ order.id }}</td>
                           <td>
-                            <select class="form-control ShowOnEdit" name="supplier">
-                              <option value="">Select Supplier</option>
-                              {% for supplier in suppliers %}
-                              <option value="{{ supplier.id }}" {% if order.supplier.id == supplier.id %}selected{% endif %}>{{ supplier.name }}</option>
+                            <select class="form-control ShowOnEdit" name="product">
+                              <option value="">Select Product</option>
+                              {% for product in products %}
+                              <option value="{{ product.id }}" {% if order.product.id == product.id %}selected{% endif %}>{{ product.name }}</option>
                               {% endfor %}
                             </select>
                             <span class="HideOnEdit">{{ order.product.name }}</span>
@@ -59,15 +59,10 @@
                               <option value="shipped">Shipped</option>
                               <option value="canceled">Canceled</option>
                             </select>
-                            <span class="HideOnEdit">{{ order.stock }}</span>
+                            <span class="HideOnEdit">{{ order.status }}</span>
                           </td>
-                          <td>
-                            <select class="form-control ShowOnEdit" name="is_discontinued">
-                              <option value="false" {% if not order.is_discontinued %}selected{% endif %}>No</option>
-                              <option value="true" {% if order.is_discontinued %}selected{% endif %}>Yes</option>
-                            </select>
-                            <span class="HideOnEdit">{{ order.is_discontinued|yesno:"Yes,No" }}</span>
-                          </td>
+                          <td>{{ order.created_at|date:"Y-m-d H:i:s" }}</td>
+                          <td>{{ order.product.stock }}</td>
                           <td>
                               <button type="submit" class="btn btn-primary ShowOnEdit">Save</button>
                               <button type="button" class="btn btn-danger ShowOnEdit" id="CancelEdit">Cancel</button>
@@ -96,32 +91,25 @@
           {% csrf_token %}
           <input type="hidden" name="id" id="order_id" value="0">
           <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" name="name" required>
-          </div>
-          <div class="form-group">
-            <select class="form-control" id="supplier" name="supplier">
-              <option value="">Select Supplier</option>
-              {% for supplier in suppliers %}
-              <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+            <select class="form-control" id="product" name="product">
+              <option value="">Select Product</option>
+              {% for product in products %}
+              <option value="{{ product.id }}">{{ product.name }}</option>
               {% endfor %}
             </select>
           </div>
           <div class="form-group">
-            <label for="price">Price</label>
-            <input type="number" class="form-control" id="price" name="price" required>
+            <label for="quantity">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" required>
           </div>
           <div class="form-group">
-            <label for="stock">Stock</label>
-            <input type="number" class="form-control" id="stock" name="stock" required>
-          </div>
-          <div class="form-group">
-            <label for="is_discontinued">Is Discontinued</label>
-            <select class="form-control" id="is_discontinued" name="is_discontinued">
-              <option value="false">No</option>
-              <option value="true">Yes</option>
+            <label for="status">Status</label>
+            <select class="form-control" id="status" name="status">
+              <option value="">Select Status</option>
+              <option value="pending">Pending</option>
+              <option value="shipped">Shipped</option>
+              <option value="canceled">Canceled</option>
             </select>
-          </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
       </div>
