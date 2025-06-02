@@ -94,7 +94,7 @@ class OrderAdmin:
             'orders': Order.objects.all(),
             'products': Product.objects.all(),
         }
-        return render(request, 'SupplierAdmin/list.html', context)
+        return render(request, 'OrderAdmin/list.html', context)
     
     def store(request):
         if request.method == 'POST':
