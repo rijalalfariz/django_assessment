@@ -105,17 +105,12 @@ class OrderAdmin:
             print(f"Received POST data: product_id={product_id}, quantity={quantity}, status={status}")
 
             if product_id and quantity and status:
-                if int(request.POST.get('id')) > 0:
-                    order_id = request.POST.get('id')
-                    edited_item = Order.objects.filter(id=order_id).first()
-                    edited_item.product = Product.objects.filter(id=product_id).first()
-                    edited_item.quantity = int(quantity)
-                    edited_item.status = status
-                    edited_item.save()
-                else:
-                    Order.objects.create(product=Product.objects.filter(id=product_id).first(),
-                                           quantity=int(quantity),
-                                           status=status)
+                productObject = Product.objects.filter(id=product_id).first()
+                Order.objects.create(product=Product.objects.filter(id=product_id).first(),
+                                        quantity=int(quantity),
+                                        status=status)
+                productObject.stock -= int(quantity)
+                productObject.save()
 
         return redirect('inventory:OrderAdmin_list')
     
