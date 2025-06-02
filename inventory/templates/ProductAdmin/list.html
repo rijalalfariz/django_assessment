@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Product List{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Product List</h1>
+            <button id="AddProduct" class="btn btn-primary mb-3" data-toggle="modal" data-target="#FormModal">Add New Product</button>
+            <div class="filter flex justify-content-between mb-3">
+                <div class="form-group">
+                    <label for="search">Search:</label>
+                    <input type="text" class="form-control" id="search" name="search" placeholder="Search by name">
+                </div>
+                <form id="filterForm">
+                    <div class="form-group">
+                        <label for="supplier">Supplier:</label>
+                        <select class="form-control" id="supplier" name="supplier">
+                            <option value="">All Suppliers</option>
+                            {% for supplier in suppliers %}
+                            <option value="{{ supplier.id }}" {% if supplier.id == request.GET.supplier %}selected{% endif %}>{{ supplier.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="is_discontinued">Is Discontinued:</label>
+                        <select class="form-control" id="is_discontinued" name="is_discontinued">
+                            <option value="">All</option>
+                            <option value="true" {% if request.GET.is_discontinued == 'true' %}selected{% endif %}>Yes</option>
+                            <option value="false" {% if request.GET.is_discontinued == 'false' %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Filter</button>
+              </form>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Supplier</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Is Discontinued</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr data-id="{{ product.id }}">
+                        <form id="productForm" method="POST" action="{% url 'inventory:ProductAdmin_store' %}">
+                        {% csrf_token %}
+                          <input type="hidden" name="id" value="{{ product.id }}">
+                          <td>{{ product.id }}</td>
+                          <td>
+                            <input type="text" class="form-control ShowOnEdit" name="name" required value="{{ product.name }}">
+                            <span class="HideOnEdit">{{ product.name }}</span>
+                          </td>
+                          <td>
+                            <select class="form-control ShowOnEdit" name="supplier">
+                              <option value="">Select Supplier</option>
+                              {% for supplier in suppliers %}
+                              <option value="{{ supplier.id }}" {% if product.supplier.id == supplier.id %}selected{% endif %}>{{ supplier.name }}</option>
+                              {% endfor %}
+                            </select>
+                            <span class="HideOnEdit">{{ product.supplier }}</span>
+                          </td>
+                          <td>
+                            <input type="number" class="form-control ShowOnEdit" name="price" required value="{{ product.price }}">
+                            <span class="HideOnEdit">{{ product.price }}</span>
+                          </td>
+                          <td>
+                            <input type="number" class="form-control ShowOnEdit" name="stock" required value="{{ product.stock }}">
+                            <span class="HideOnEdit">{{ product.stock }}</span>
+                          </td>
+                          <td>
+                            <select class="form-control ShowOnEdit" name="is_discontinued">
+                              <option value="false" {% if not product.is_discontinued %}selected{% endif %}>No</option>
+                              <option value="true" {% if product.is_discontinued %}selected{% endif %}>Yes</option>
+                            </select>
+                            <span class="HideOnEdit">{{ product.is_discontinued|yesno:"Yes,No" }}</span>
+                          </td>
+                          <td>
+                              <button type="submit" class="btn btn-primary ShowOnEdit">Save</button>
+                              <button type="button" class="btn btn-danger ShowOnEdit" id="CancelEdit">Cancel</button>
+                              <button type="button" class="btn btn-warning HideOnEdit" id="EditItem">Edit</button>
+                              <button type="button" class="btn btn-danger HideOnEdit" id="DeleteItem">Delete</button>
+                          </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="FormModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Product</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm" method="POST" action="{% url 'inventory:ProductAdmin_store' %}">
+          {% csrf_token %}
+          <input type="hidden" name="id" id="product_id" value="0">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <select class="form-control" id="supplier" name="supplier">
+              <option value="">Select Supplier</option>
+              {% for supplier in suppliers %}
+              <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="price">Price</label>
+            <input type="number" class="form-control" id="price" name="price" required>
+          </div>
+          <div class="form-group">
+            <label for="stock">Stock</label>
+            <input type="number" class="form-control" id="stock" name="stock" required>
+          </div>
+          <div class="form-group">
+            <label for="is_discontinued">Is Discontinued</label>
+            <select class="form-control" id="is_discontinued" name="is_discontinued">
+              <option value="false">No</option>
+              <option value="true">Yes</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $('.ShowOnEdit').hide();
+
+  $(document).on('click', '#EditItem, #CancelEdit', function() {
+    $(this).closest('tr').find('.ShowOnEdit').toggle();
+    $(this).closest('tr').find('.HideOnEdit').toggle();
+  })
+
+  $(document).on('click', '#DeleteItem', function() {
+    let row = $(this).closest('tr');
+    let productId = row.data('id');
+
+    if (confirm('Are you sure you want to delete this product?')) {
+      $.ajax({
+        url: "{% url 'inventory:ProductAdmin_delete' %}",
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {id: productId},
+        success: function(response) {
+          row.remove();
+          alert('Product deleted successfully.');
+        },
+        error: function(xhr, status, error) {
+          alert('Error deleting product: ' + error);
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% load static %}
+<div class="shadow-big h-screen p-3" style="overflow-y: auto;">
+    <div class="pages">
+        <a href="/loginview/dashboard"><div class="page-text">Dashboard</div></a>
+        <a href="/supplieradmin" data-page="/supplieradmin"><div class="page-text">Supplier Admin</div></a>
+        <a href="/productadmin" data-page="/productadmin"><div class="page-text">Product Admin</div></a>
+        <a href="/orderadmin" data-page="/orderadmin"><div class="page-text">Order Admin</div></a>
+    </div>
+</div>
+
+<script>
+    let viewnya = '{{ request.path }}'.split('/')
+    console.log('viewnya', viewnya)
+    viewnya = `${viewnya[1]}`
+    $('.page-text').removeClass('active');
+    $(`a[data-page*="${viewnya}"]:has(.page-text)`).find('.page-text').addClass('active');
+</script>

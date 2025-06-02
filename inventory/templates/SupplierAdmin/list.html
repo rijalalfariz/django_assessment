@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Supplier List{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Supplier List</h1>
+            <button id="AddSupplier" class="btn btn-primary mb-3" data-toggle="modal" data-target="#FormModal">Add New Supplier</button>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Related Products</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers %}
+                    <tr data-id="{{ supplier.id }}">
+                        <form id="supplierForm" method="POST" action="{% url 'inventory:SupplierAdmin_store' %}">
+                        {% csrf_token %}
+                          <input type="hidden" name="id" value="{{ supplier.id }}">
+                          <td>{{ supplier.id }}</td>
+                          <td>
+                            <input type="text" class="form-control ShowOnEdit" name="name" required value="{{ supplier.name }}">
+                            <span class="HideOnEdit">{{ supplier.name }}</span>
+                          </td>
+                          <td>
+                            <input type="email" class="form-control ShowOnEdit" name="contact_email" required value="{{ supplier.contact_email }}">
+                            <span class="HideOnEdit">{{ supplier.contact_email }}</span>
+                          </td>
+                          {% if supplier.products.all.count > 0 %}
+                          <td>
+                              {% for product in supplier.products.all %}
+                              <span class="badge badge-info">{{ product.name }}</span>
+                              {% endfor %}
+                          </td>
+                          {% else %}
+                          <td>-</td>
+                          {% endif %}
+                          <td>
+                              <button type="submit" class="btn btn-primary ShowOnEdit">Save</button>
+                              <button type="button" class="btn btn-danger ShowOnEdit" id="CancelEdit">Cancel</button>
+                              <button type="button" class="btn btn-warning HideOnEdit" id="EditItem">Edit</button>
+                              {% if supplier.products.all.count == 0 %}
+                              <button type="button" class="btn btn-danger HideOnEdit" id="DeleteItem">Delete</button>
+                              {% endif %}
+                          </td>
+                        </form>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="FormModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Supplier</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="supplierForm" method="POST" action="{% url 'inventory:SupplierAdmin_store' %}">
+          {% csrf_token %}
+          <input type="hidden" name="id" id="supplier_id" value="0">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+          </div>
+          <div class="form-group">
+            <label for="contact_email">Email</label>
+            <input type="email" class="form-control" id="contact_email" name="contact_email" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $('.ShowOnEdit').hide();
+
+  $(document).on('click', '#EditItem, #CancelEdit', function() {
+    $(this).closest('tr').find('.ShowOnEdit').toggle();
+    $(this).closest('tr').find('.HideOnEdit').toggle();
+  })
+
+  $(document).on('click', '#DeleteItem', function() {
+    let row = $(this).closest('tr');
+    let supplierId = row.data('id');
+
+    if (confirm('Are you sure you want to delete this supplier?')) {
+      $.ajax({
+        url: "{% url 'inventory:SupplierAdmin_delete' %}",
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        data: {id: supplierId},
+        success: function(response) {
+          row.remove();
+          alert('Supplier deleted successfully.');
+        },
+        error: function(xhr, status, error) {
+          alert('Error deleting supplier: ' + error);
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}
